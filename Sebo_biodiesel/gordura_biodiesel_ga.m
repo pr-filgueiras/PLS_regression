@@ -1,11 +1,12 @@
-load('..\libs\');
-
 %% Como construir um modelo GA-PLS?
+
+cd('G:\Meu Drive\Analise Multivariada\Modulo 03 - Calibração Multivariada\Dados\exemplo_01')
+
 % Leitura dos dados de teor de biodiesel de sebo bovino
 ysebo = xlsread('biodiesel.xlsx','bio','B2:B101');
 % Leitura dos dados espectrais
 NIR = [];
-files = dir('ascFiles/*.ASC');
+files = dir('*.ASC');
 for ki=1:numel(files)
     FileName{ki,1}=char(files(ki,1).name);
     espectro_i=dlmread(FileName{ki,1},'\t',56,0);
@@ -13,21 +14,22 @@ for ki=1:numel(files)
 end
 num = espectro_i(:,1)';
 
-plot(num,NIR);
+plot(num,NIR)
 
 % +++++ Construção do modelo +++++
 % Separar as amostras em conjunto de Calibração e Teste.
 % Utilização do algoritmo Kennard-Stone
-
-
+cd('G:\Meu Drive\Analise Multivariada\Banco de dados\libPLS')
 [info,Xcal,Xtest,ycal,ytest]=caltest(NIR,ysebo,70,'k',0,{'none'});
 plot(ycal,ycal,'b*',ytest,ytest,'ro')
 legend ('ycal','ytest'), grid on
 xlabel ('Referência'); ylabel ('Referência')
 % Utilização do algoritmo Rank_KS
+cd('G:\Meu Drive\Analise Multivariada\Banco de dados\libPLS')
 [Xcal,Xtest,ycal,ytest,info]=rank_ks(NIR,ysebo,FileName,70,10,1);
 
 % Pre-processamento dos dados.
+cd('G:\Meu Drive\Analise Multivariada\Banco de dados\libPLS')
 [Xcalp,Xtestp]=pretrat(Xcal,Xtest,{'msc'});
 subplot(2,1,1), plot(num,Xcal,'b',num,Xtest,'r')
 xlabel ('Número de onda (cm^{-1})'); ylabel ('Absorbância')
@@ -35,6 +37,7 @@ subplot(2,1,2), plot(num,Xcalp,'b',num,Xtestp,'r')
 xlabel ('Número de onda (cm^{-1})'); ylabel ('Absorbância')
 
 % Construindo o modelo GA-PLS
+cd('G:\Meu Drive\Analise Multivariada\GA_motivation')
 
 options.nind = 30; % população inicial
 options.Nvar = size(Xcal,2);
@@ -68,7 +71,7 @@ objv=obj_gapls(variable,Xcalp,ycal,options.nvl,options.method,options.kfold);
 % Agora basta construir o modelo PLS.
 % Primeiro pre-processa os dados e depois seleciona as variáveis.
 
-
+cd('G:\Meu Drive\Analise Multivariada\Banco de dados\libPLS')
 nvl = 10;
 kfold = 5;
 method = 'center';
@@ -136,6 +139,7 @@ ylabel('Leverage')
 
 
 %% Construindo um modelo GA-PLS com outra rotina
+cd('G:\Meu Drive\Analise Multivariada\Banco de dados\GA-PLS')
 options.nopop    = 30;    %Population size
 options.maxgen   = 25;    %Max number of generations
 options.mut      = 0.01;  %Mutation Rate
